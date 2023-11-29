@@ -3,7 +3,10 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 
+import '../../models/FireStoreService.dart';
+import '../../models/UserEmailProvider.dart';
 import '../../models/auth.dart';
 import '../../widgets/password_text_form_field.dart';
 import '../task_screen/task_list.dart';
@@ -17,6 +20,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final FirestoreService _firestoreService = FirestoreService();
   late bool _isLoginInProgress;
   late GlobalKey<FormState> _formKey;
   late TextEditingController _emailController;
@@ -40,51 +44,70 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var userEmailProvider = Provider.of<UserEmailProvider>(context);
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Login'),
+        backgroundColor: Colors.amberAccent,
+        title: const Center(child: Text('Login')),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'E-mail',
-                  hintText: 'user@gmail.com',
-                  prefixIcon: Icon(Icons.person),
-                ),
-                keyboardType: TextInputType.emailAddress,
-                textInputAction: TextInputAction.next,
-                validator: (value) {
-                  if (value?.isEmpty ?? true) {
-                    return 'Enter email.';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 10),
-              PasswordTextFormField(
-                labelText: 'Password',
-                passwordEditingController: _passwordController,
-                validator: (value) {
-                  if (value?.isEmpty ?? true) {
-                    return 'Enter password.';
-                  } else if (value!.length < 8) {
-                    return 'Password must be at least 8 characters.';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 15),
-              ElevatedButton(
-                onPressed: _isLoginInProgress == true
-                    ? null
-                    : () {
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Image.asset('assets/logo.png'),
+            Padding(
+        
+        
+              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+        
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    TextFormField(
+                      controller: _emailController,
+                      decoration: const InputDecoration(
+                        labelText: 'E-mail',
+                        hintText: 'user@gmail.com',
+                        prefixIcon: Icon(Icons.person),
+                      ),
+                      keyboardType: TextInputType.emailAddress,
+                      textInputAction: TextInputAction.next,
+                      validator: (value) {
+                        if (value?.isEmpty ?? true) {
+                          return 'Enter email.';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    PasswordTextFormField(
+                      labelText: 'Password',
+                      passwordEditingController: _passwordController,
+                      validator: (value) {
+                        if (value?.isEmpty ?? true) {
+                          return 'Enter password.';
+                        } else if (value!.length < 8) {
+                          return 'Password must be at least 8 characters.';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 15),
+                    ElevatedButton(
+                      style: TextButton.styleFrom(
+                        textStyle: const TextStyle(
+                          color: Colors.amberAccent, // Text color
+                          fontSize: 16.0,    // Text size
+                        ),
+                        padding: const EdgeInsets.all(10.0),  // Padding around the text
+                        backgroundColor: Colors.amberAccent,   // Button background color
+                      ),
+                      onPressed: _isLoginInProgress == true
+                          ? null
+                          : () {
                         if (_formKey.currentState!.validate() == true) {
                           loginUser(
                             email: _emailController.text.trim(),
@@ -92,31 +115,128 @@ class _LoginScreenState extends State<LoginScreen> {
                           );
                         }
                       },
-                child: Visibility(
-                  visible: _isLoginInProgress,
-                  replacement: const Text('Login'),
-                  child: const CircularProgressIndicator(),
+                      child: Visibility(
+                        visible: _isLoginInProgress,
+                        replacement: const Text('Login'),
+                        child: const CircularProgressIndicator(),
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        const Text('Haven\'t account?'),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (cntxt) => const RegistrationScreen(),
+                              ),
+                            );
+                          },
+                          child: const Text('Create'),
+                        )
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  const Text('Haven\'t account?'),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (cntxt) => const RegistrationScreen(),
+            ),
+            Padding(
+              padding:  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+        
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    TextFormField(
+                      controller: _emailController,
+                      decoration: const InputDecoration(
+                        labelText: 'E-mail',
+                        hintText: 'user@gmail.com',
+                        prefixIcon: Icon(Icons.person),
+                      ),
+                      keyboardType: TextInputType.emailAddress,
+                      textInputAction: TextInputAction.next,
+                      validator: (value) {
+                        if (value?.isEmpty ?? true) {
+                          return 'Enter email.';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    PasswordTextFormField(
+                      labelText: 'Password',
+                      passwordEditingController: _passwordController,
+                      validator: (value) {
+                        if (value?.isEmpty ?? true) {
+                          return 'Enter password.';
+                        } else if (value!.length < 8) {
+                          return 'Password must be at least 8 characters.';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 15),
+                    ElevatedButton(
+                      style: TextButton.styleFrom(
+                        textStyle: const TextStyle(
+                          color: Colors.amberAccent, // Text color
+                          fontSize: 16.0,    // Text size
                         ),
-                      );
-                    },
-                    child: const Text('Create'),
-                  )
-                ],
+                        padding: const EdgeInsets.all(10.0),  // Padding around the text
+                        backgroundColor: Colors.amberAccent,   // Button background color
+                      ),
+                      onPressed: _isLoginInProgress == true
+                          ? null
+                          : () async {
+                        if (_formKey.currentState!.validate() == true) {
+                          userEmailProvider.setEnteredEmail(_emailController.text.trim());
+                          print(_emailController.text);
+                          String? userName = await _firestoreService.getUserName(_emailController.text.trim());
+                          // Store the user's name
+                          if (userName != null) {
+                            userEmailProvider.setUserName(userName);
+                          }
+                          loginUser(
+                            email: _emailController.text.trim(),
+                            password: _passwordController.text,
+                          );
+                        }
+                      },
+                      child: Visibility(
+                        visible: _isLoginInProgress,
+                        replacement: const Text('Login'),
+                        child: const CircularProgressIndicator(),
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        const Text('Haven\'t account?'),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (cntxt) => const RegistrationScreen(),
+                              ),
+                            );
+                          },
+                          child: const Text('Create'),
+                        )
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
+            ),
+          ],
+        
+        
         ),
       ),
     );

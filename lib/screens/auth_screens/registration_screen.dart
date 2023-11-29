@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -41,14 +42,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text('Create Account'),
+        backgroundColor: Colors.amberAccent,
+        title: Center(child: const Text('Create Account')),
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 46.0),
           child: Form(
             key: _formKey,
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 TextFormField(
@@ -113,6 +116,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 ),
                 const SizedBox(height: 15),
                 ElevatedButton(
+                  style: TextButton.styleFrom(
+                    textStyle: TextStyle(
+                      color: Colors.amberAccent, // Text color
+                      fontSize: 16.0,    // Text size
+                    ),
+                    padding: EdgeInsets.all(10.0),  // Padding around the text
+                    backgroundColor: Colors.amberAccent,   // Button background color
+                  ),
                   onPressed: _isCreateAccountInProgress == true
                       ? null
                       : () {
@@ -159,6 +170,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     required String name,
     required String email,
     required String password,
+    int amount = 0,
   }) async {
     _isCreateAccountInProgress = true;
     if (mounted) {
@@ -170,6 +182,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         email: email,
         password: password,
       );
+      // Store additional user information in Firestore
+      await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
+        'name': name,
+        'email': email,
+        'amount' : amount,
+        // Add any other fields you want to store
+      });
+
       // log(userCredential.user.toString());
       _isCreateAccountInProgress = false;
 
